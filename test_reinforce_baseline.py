@@ -1,16 +1,9 @@
 from reinforce_baseline import *
 from catch import Catch
-
-discount_rate = 0.99
-
-def discount(rewards, t):
-    discounted_reward = 0
-    for k in range(t, len(rewards)):
-        reward = rewards[k]
-        discounted_reward += pow(discount_rate, k) * reward
-    return discounted_reward
+from utilities import discount
 
 def main():
+    discount_rate = 0.99
     env = Catch(5)
     model = Model(env.observation_space, env.action_space, 0.1, discount_rate)
     observations = []
@@ -33,7 +26,7 @@ def main():
             if done:
                 t = 0
                 for observation, reward, action in zip(observations, rewards, actions):
-                    discounted_reward = discount(rewards, t)
+                    discounted_reward = discount(rewards, discount_rate, t)
                     model.train(observation, discounted_reward, action, t)
                     t += 1
 

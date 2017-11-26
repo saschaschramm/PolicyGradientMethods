@@ -1,9 +1,8 @@
 from reinforce_actor_critic import *
 from catch import Catch
 
-discount_rate = 0.99
-
 def main():
+    discount_rate = 0.99
     env = Catch(5)
     model = Model(env.observation_space, env.action_space, 0.01)
     epsiodes = 10000
