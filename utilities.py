@@ -17,6 +17,15 @@ def action_with_policy(policy):
     return 0
 
 
+def discount(rewards, discount_rate, t):
+    discounted_reward = 0
+    rewards = rewards[t:]
+    for k in range(0, len(rewards)):
+        reward = rewards[k]
+        discounted_reward += pow(discount_rate, k) * reward
+    return discounted_reward
+
+
 step_count = 0
 scores = []
 def print_score(reward, limit):
