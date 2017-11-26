@@ -25,6 +25,7 @@ class Model:
         inputs_reshaped = tf.reshape(self._input, [1, width * height])
         self._value = fully_connected(inputs_reshaped, "value", 1)
 
+        # policy
         logits = fully_connected(inputs_reshaped, "policy", action_space)
         self._policy = tf.nn.softmax(logits)
         action_mask = tf.one_hot(self._action, action_space)
@@ -46,8 +47,7 @@ class Model:
                                                         self._input: input,
                                                         self._reward: reward,
                                                         self._action: action,
-                                                        self._t: t
-        })
+                                                        self._t: t})
 
     def predict_action(self, input):
         policy = self.session.run(self._policy, feed_dict={self._input: input})
