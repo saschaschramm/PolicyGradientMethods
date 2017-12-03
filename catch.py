@@ -29,10 +29,10 @@ class Catch:
         self.player.move(action)
 
         if self._check_wall(self.player.position):
-            self.player.position = self.player.positionOld
+            self.player.position = self.player.position_old
 
         if self._check_wall(self.enemy.position):
-            self.enemy.position = self.enemy.positionOld
+            self.enemy.position = self.enemy.position_old
 
         if self._check_hit():
             reward = 1.0

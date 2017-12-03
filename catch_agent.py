@@ -15,10 +15,10 @@ class CatchAgent:
         }
 
         self.position = (0, 0)
-        self.positionOld = None
+        self.position_old = None
 
     def move(self, action):
-        self.positionOld = self.position
+        self.position_old = self.position
         d = self.delta(action)
         self.position = (self.position[0] + d[0], self.position[1] + d[1])
 
