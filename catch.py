@@ -20,7 +20,7 @@ class Catch:
         self.player = CatchAgent()
         self.enemy = CatchAgent()
         self.action_space = 8
-        self.observation_space = (self.rows, self.cols, 1)
+        self.observation_space = (self.rows, self.cols)
 
     def step(self, action):
         reward = 0.0

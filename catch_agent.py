@@ -1,5 +1,3 @@
-import numpy
-
 class CatchAgent:
 
     def __init__(self):
@@ -13,7 +11,7 @@ class CatchAgent:
             6: (-1, -1),
             7: (-1, 1)
         }
-        
+
         self.position = (0, 0)
         self.position_old = None
 

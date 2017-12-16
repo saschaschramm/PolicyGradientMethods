@@ -3,6 +3,7 @@ from catch import Catch
 from utilities import discount
 
 def main():
+    global_seed(0)
     discount_rate = 0.99
     env = Catch(5)
     model = Model(env.observation_space, env.action_space, 0.1, discount_rate)

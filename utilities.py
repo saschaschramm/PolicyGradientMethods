@@ -2,11 +2,19 @@ import tensorflow as tf
 import random
 import numpy as np
 
+def global_seed(seed):
+    tf.set_random_seed(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+
 def fully_connected(input, scope, out_size):
     with tf.variable_scope(scope):
         in_size = input.get_shape()[1].value
         weights = tf.get_variable("weights", [in_size, out_size], initializer=tf.contrib.layers.xavier_initializer())
-        return tf.matmul(input, weights)
+
+        bias = tf.get_variable("bias", [out_size])
+
+        return tf.matmul(input, weights) + bias
 
 def action_with_policy(policy):
     rand = random.uniform(0, 1)
