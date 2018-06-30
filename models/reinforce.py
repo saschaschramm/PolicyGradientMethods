@@ -1,25 +1,20 @@
-from utilities import *
+from common.utilities import *
 
 class Model:
     def __init__(self, observation_space, action_space, learning_rate):
-        self.action = None
-        self.reward = None
-        self.input = None
-        self.policy = None
-        self.train_policy = None
         self.session = tf.Session()
         self.build_graph(observation_space, action_space, learning_rate)
 
     def build_graph(self, observation_space, action_space, learning_rate):
-        self.action = tf.placeholder(tf.uint8)
-        self.reward = tf.placeholder(tf.float32)
+        self.action = tf.placeholder(tf.uint8, name="action")
+        self.reward = tf.placeholder(tf.float32, name="reward")
+        self.observation = tf.placeholder(tf.uint8, name="observation")
 
-        width = observation_space[0]
-        height = observation_space[1]
+        logits = fully_connected(input=[tf.one_hot(self.observation, observation_space)],
+                                 scope="policy",
+                                 in_size=observation_space,
+                                 out_size=action_space)
 
-        self.input = tf.placeholder(tf.float32, [width, height])
-        inputs_reshaped = tf.reshape(self.input, [1, width * height])
-        logits = fully_connected(inputs_reshaped, "policy", action_space)
         self.policy = tf.nn.softmax(logits)
 
         action_mask = tf.one_hot(self.action, action_space)
@@ -31,12 +26,11 @@ class Model:
         self.train_policy = parameters[0].assign(delta)
         self.session.run(tf.global_variables_initializer())
 
-    def train(self, input, reward, action):
-        self.session.run(self.train_policy, feed_dict={self.input: input,
+    def train(self, observation, reward, action):
+        self.session.run(self.train_policy, feed_dict={self.observation: observation,
                                                         self.reward: reward,
                                                         self.action: action})
 
-    def predict_action(self, input):
-        policy = self.session.run(self.policy, feed_dict={self.input: input})
+    def predict_action(self, observation):
+        policy = self.session.run(self.policy, feed_dict={self.observation: observation})
         return action_with_policy(policy)
-

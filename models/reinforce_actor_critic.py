@@ -1,15 +1,7 @@
-from utilities import *
+from common.utilities import *
 
 class Model:
     def __init__(self, observation_space, action_space, learning_rate):
-        self.action = None
-        self.input = None
-        self.policy = None
-        self.value = None
-        self.train_policy = None
-        self.train_value = None
-        self.td_error = None
-        self.I = None
         self.session = tf.Session()
         self.build_graph(observation_space, action_space, learning_rate)
 
@@ -17,16 +9,19 @@ class Model:
         self.action = tf.placeholder(tf.uint8)
         self.I = tf.placeholder(tf.float32)
         self.td_error = tf.placeholder(tf.float32)
+        self.observation = tf.placeholder(tf.uint8, name="observation")
 
-        width = observation_space[0]
-        height = observation_space[1]
+        self.value = tf.squeeze(fully_connected(input=[tf.one_hot(self.observation, observation_space)],
+                                 scope="value",
+                                 in_size=observation_space,
+                                 out_size=1))
 
-        self.input = tf.placeholder(tf.float32, [width, height])
-        inputs_reshaped = tf.reshape(self.input, [1, width * height])
-        self.value = tf.squeeze(fully_connected(inputs_reshaped, "value", 1))
+        logits = fully_connected(input=[tf.one_hot(self.observation, observation_space)],
+                                 scope="policy",
+                                 in_size=observation_space,
+                                 out_size=action_space)
 
-        # policy
-        logits = fully_connected(inputs_reshaped, "policy", action_space)
+
         self.policy = tf.nn.softmax(logits)
         action_mask = tf.one_hot(self.action, action_space)
         eligibility_vector = action_mask * tf.log(self.policy + 1e-13)
@@ -42,19 +37,19 @@ class Model:
         self.train_value = parameters_value[0].assign(delta_value)
         self.session.run(tf.global_variables_initializer())
 
-    def train(self, input, td_error, action, I):
+    def train(self, observation, td_error, action, I):
         self.session.run([self.train_policy, self.train_value], feed_dict={
-            self.input: input,
+            self.observation: observation,
             self.action: action,
             self.I: I,
             self.td_error: td_error
         })
 
-    def predict_action(self, input):
-        policy = self.session.run(self.policy, feed_dict={self.input: input})
+    def predict_action(self, observation):
+        policy = self.session.run(self.policy, feed_dict={self.observation: observation})
         action = action_with_policy(policy)
         return action
 
-    def predict_value(self, input):
-        value = self.session.run(self.value, feed_dict={self.input: input})
+    def predict_value(self, observation):
+        value = self.session.run(self.value, feed_dict={self.observation: observation})
         return value

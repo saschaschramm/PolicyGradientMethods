@@ -1,19 +1,29 @@
 import tensorflow as tf
 import random
 import numpy as np
+from gym.envs.registration import register
+import gym
 
 def global_seed(seed):
     tf.set_random_seed(seed)
     np.random.seed(seed)
     random.seed(seed)
 
-def fully_connected(input, scope, out_size):
+def init_env():
+    register(
+        id='FrozenLakeNotSlippery-v0',
+        entry_point='gym.envs.toy_text:FrozenLakeEnv',
+        kwargs={'map_name': '4x4', 'is_slippery': False}
+    )
+
+    env = gym.make('FrozenLakeNotSlippery-v0')
+    env.seed(0)
+    return env
+
+def fully_connected(input, scope, in_size, out_size):
     with tf.variable_scope(scope):
-        in_size = input.get_shape()[1].value
         weights = tf.get_variable("weights", [in_size, out_size], initializer=tf.contrib.layers.xavier_initializer())
-
         bias = tf.get_variable("bias", [out_size])
-
         return tf.matmul(input, weights) + bias
 
 def action_with_policy(policy):
@@ -31,15 +41,3 @@ def discount(rewards, discount_rate, t):
         reward = rewards[k]
         discounted_reward += pow(discount_rate, k) * reward
     return discounted_reward
-
-step_count = 0
-scores = []
-def print_score(reward, limit):
-    global scores
-    global step_count
-    scores.append(reward)
-
-    if len(scores) == limit:
-        print("{}: {}".format(step_count, sum(scores)))
-        step_count += 1
-        scores = []
